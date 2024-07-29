@@ -181,3 +181,34 @@ You will only need the ``FACTOR.py`` script.
 python FACTOR.py <scriptPubKey>
 ```
 
+
+
+## for MacOS M1 MAX
+```
+brew install autoconf automake libtool pkg-config
+brew install boost
+brew install gmp
+brew install cryptopp
+brew install berkeley-db@4
+brew reinstall libevent --build-from-source
+brew reinstall zeromq --build-from-source
+```
+
+```
+make -C depends NO_QT=1
+```
+
+```
+export PKG_CONFIG_PATH="/opt/homebrew/opt/libevent/lib/pkgconfig:/opt/homebrew/opt/zeromq/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+./autogen.sh
+./configure --prefix=`pwd`/depends/aarch64-apple-darwin \
+    LDFLAGS="-L$(brew --prefix berkeley-db@4)/lib -L$(brew --prefix gmp)/lib -L$(brew --prefix cryptopp)/lib -L/opt/homebrew/opt/libevent/lib -L/opt/homebrew/opt/zeromq/lib" \
+    CPPFLAGS="-I$(brew --prefix berkeley-db@4)/include -I$(brew --prefix gmp)/include -I$(brew --prefix cryptopp)/include -I/opt/homebrew/opt/libevent/include -I/opt/homebrew/opt/zeromq/include"
+
+make
+```
+
+```
+mkdir -p ~/.factorn
+```
