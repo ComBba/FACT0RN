@@ -181,3 +181,82 @@ You will only need the ``FACTOR.py`` script.
 python FACTOR.py <scriptPubKey>
 ```
 
+<br>
+<br>
+<br>
+
+# for Windows 10 x64
+### 기본 : wsl에 Ubuntu-22.04 설치 및 기본 빌드용 프로그램 설치
+```
+sudo apt update
+sudo apt upgrade
+sudo apt install mingw-w64
+sudo apt install g++-mingw-w64-x86-64
+sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git
+sudo apt install nsis
+sudo apt-get install unzip
+sudo update-alternatives --config x86_64-w64-mingw32-g++
+```
+
+### select 1
+```
+ 1            /usr/bin/x86_64-w64-mingw32-g++-posix   30        manual mode
+```
+
+### 계속 진행
+```
+PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
+sudo bash -c "echo 0 > /proc/sys/fs/binfmt_misc/status" # Disable WSL support for Win32 applications.
+cd depends
+```
+
+### 에러발생시 (No such file or directory)
+```
+dos2unix *
+```
+
+### depends make가 몇십분 걸림
+#### ※ 중간에 boost, gmp등 다운로드 Error나 hash에러, curl(22)=404 에러가 발생하여 멈출 경우 다시 명령어 재실행
+```
+make HOST=x86_64-w64-mingw32
+```
+
+### 에러발생시 필요에 따라 별도 실행
+```
+libtool --finish /mnt/c/Github/FACT0RN/depends/x86_64-w64-mingw32/lib
+```
+
+### 다음 에러 등이 발생시 아래 명령어를 사용하고 패치 관련 질문에서 계속 y 입력
+patch: **** Can't rename file dbinc/atomic.h.orujksV to dbinc/atomic.h : Permission denied <br>
+make: *** [funcs.mk:282: /mnt/c/Github/FACT0RN/depends/work/build/x86_64-w64-mingw32/bdb/4.8.30-a378641a596/.stamp_preprocessed] Error 2
+```
+chmod -R u+w /mnt/c/Github/FACT0RN/depends/work/build/x86_64-w64-mingw32/
+make HOST=x86_64-w64-mingw32
+```
+
+### 실제 프로그램 빌드 시작
+```
+cd ..
+find . -name \Makefile|xargs dos2unix
+find . -name \*.m4|xargs dos2unix
+find . -name \*.ac|xargs dos2unix
+find . -name \*.am|xargs dos2unix
+find . -name \*.sh|xargs dos2unix
+find . -name \*.c|xargs dos2unix
+find . -name \*.h|xargs dos2unix
+find . -name \*.cpp|xargs dos2unix
+find . -name \*.la|xargs dos2unix
+./autogen.sh
+```
+```
+CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure --prefix=/
+make
+sudo bash -c "echo 1 > /proc/sys/fs/binfmt_misc/status" # Enable WSL support for Win32 applications.
+```
+
+### 인스톨 시작
+```
+mkdir workspace/FACT0RN
+make install DESTDIR=/mnt/c/Github/FACT0RN/workspace/FACT0RN
+make deploy
+```
